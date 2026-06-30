@@ -3,9 +3,10 @@ const app = express();
 const PORT = 8080;
 
 const index = require("./api/index.js");
-app.use("/api", index);
 
+// Make sure to call .json() before your routers or req.body won't exist
 app.use(express.json());
+app.use("/api", index);
 
 function middleware(req, res, next) {
   console.log("Checking request method", req.method, req.originalUrl);
@@ -16,7 +17,8 @@ app.use(middleware);
 
 function ErrorHandler(err, req, res, next) {
   console.log("Caught the error");
-  (console.log(">>>>", err.message), res.sendStatus(500));
+  console.log(">>>>", err.message);
+  res.sendStatus(500);
 }
 app.use(ErrorHandler);
 

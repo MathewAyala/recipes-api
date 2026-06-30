@@ -43,13 +43,15 @@ let recipes = [
 
 let nextId = 6;
 
+
 const router = require("express").Router();
 
 function checkTitleAndCuisine(req, res, next) {
+//   console.log("checkTitleAndCuisine middleware", req);
   const { title, cuisine } = req.body;
   title && cuisine
     ? console.log("Title and Cuisine are here!")
-    : res.status(400).send();
+    : res.status(400).send("Error: Must provide BOTH Title and Cuisine");
   next();
 }
 
@@ -60,19 +62,18 @@ router.get("/", (req, res) => {
 
 router.get("/:id", (req, res, next) => {
   try {
-    const recipe = recipes.find(({id}) => id === Number(req.params.id));
+    const recipe = recipes.find(({ id }) => id === Number(req.params.id));
     if (recipe) {
       res.json(recipe);
-    }
-    // throw new Error("still No Worky");
+    } 
   } catch (err) {
     next(err);
   }
 });
 
 router.post("/", checkTitleAndCuisine, (req, res, next) => {
+  //console.log("ROUTER POST", req.body);
   try {
-    
     const { title, cuisine, minutes, servings, vegetarian } = req.body;
 
     const newRecipe = {
@@ -87,7 +88,6 @@ router.post("/", checkTitleAndCuisine, (req, res, next) => {
     recipes.push(newRecipe);
     res.status(201).json(newRecipe);
 
-    throw new Error("My friend, it no Worky!");
   } catch (err) {
     next(err);
   }
@@ -100,10 +100,10 @@ router.patch("/:id", (req, res, next) => {
 
     if (recipeToUpdate)
       Object.assign(recipeToUpdate, req.body) &&
-        res.status(200).send(recipeToUpdate);
+        res.status(200).send(recipeToUpdate)
     //: res.status(404).send("Recipe not found!");
 
-    throw new Error("patch, no worky");
+    throw new Error("Invalid ID: can't patch");
   } catch (err) {
     next(err);
   }
@@ -114,12 +114,13 @@ router.delete("/:id", (req, res, next) => {
     const recipeId = Number(req.params.id);
     const recipePosition = recipes.find((recipe) => recipe.id === recipeId);
 
-    if (recipePosition)
+    if (recipePosition){
       recipes.splice(recipePosition.id - 1, 1) && res.sendStatus(204); //: res.status(404).send("Recipe not found!");
     //                 the position id - 1 because index starts at 0, then it will delete 1 index after it;
-    throw new Error("Delete No Worky");
+  }
   } catch (err) {
     next(err);
   }
 });
+
 module.exports = router;
